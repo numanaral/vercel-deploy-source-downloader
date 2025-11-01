@@ -1,0 +1,38 @@
+# Source files (we ship compiled JS)
+src/
+tsconfig.json
+
+# Development files
+.env
+.env.local
+.env.example
+
+# Build artifacts
+out/
+download-log.txt
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation for developers
+AGENTS.md
+
+# Tests
+*.test.ts
+*.test.js
+__tests__/
+
+# CI/CD
+.github/
+
+# Logs
+*.log
+npm-debug.log*
+

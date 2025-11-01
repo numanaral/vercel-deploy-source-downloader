@@ -1,0 +1,60 @@
+{
+  "name": "vercel-deploy-source-downloader",
+  "version": "1.0.0",
+  "description": "Download source code from Vercel deployments with support for latest or specific deployment IDs",
+  "main": "dist/vercel-deploy-source-downloader.js",
+  "bin": {
+    "vercel-deploy-source-downloader": "./dist/vercel-deploy-source-downloader.js"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "scripts": {
+    "start": "tsx src/vercel-deploy-source-downloader.ts",
+    "download": "tsx src/vercel-deploy-source-downloader.ts",
+    "build": "npm run format:fix && npm run lint:fix && tsc",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --check \"src/**/*.ts\"",
+    "format:fix": "prettier --write \"src/**/*.ts\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "vercel",
+    "download",
+    "source",
+    "deployment",
+    "backup",
+    "cli",
+    "vercel-cli",
+    "source-code",
+    "downloader"
+  ],
+  "author": "Numan <ahmetnuman95@hotmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/numanaral/download-vercel-source.git"
+  },
+  "bugs": {
+    "url": "https://github.com/numanaral/download-vercel-source/issues"
+  },
+  "homepage": "https://github.com/numanaral/download-vercel-source#readme",
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
