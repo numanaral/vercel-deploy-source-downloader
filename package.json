@@ -1,6 +1,6 @@
 {
   "name": "vercel-deploy-source-downloader",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Download source code from Vercel deployments with support for latest or specific deployment IDs",
   "main": "dist/vercel-deploy-source-downloader.js",
   "bin": {
@@ -21,6 +21,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --check \"src/**/*.ts\"",
     "format:fix": "prettier --write \"src/**/*.ts\"",
+    "release": "tsx scripts/release.ts",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -38,12 +39,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/numanaral/download-vercel-source.git"
+    "url": "git+https://github.com/numanaral/vercel-deploy-source-downloader.git"
   },
   "bugs": {
-    "url": "https://github.com/numanaral/download-vercel-source/issues"
+    "url": "https://github.com/numanaral/vercel-deploy-source-downloader/issues"
   },
-  "homepage": "https://github.com/numanaral/download-vercel-source#readme",
+  "homepage": "https://github.com/numanaral/vercel-deploy-source-downloader#readme",
   "devDependencies": {
     "@types/node": "^22.9.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",

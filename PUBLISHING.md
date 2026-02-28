@@ -1,183 +1,103 @@
 # Publishing to NPM
 
-This document explains how to publish the `download-vercel-source` package to npm.
+Guide for publishing updates to the [`vercel-deploy-source-downloader`](https://www.npmjs.com/package/vercel-deploy-source-downloader) package on npm.
 
 ## Prerequisites
 
-1. **npm account**: Create one at https://www.npmjs.com/signup
-2. **npm login**: Run `npm login` and authenticate with your credentials
-3. **Package name availability**: Verify the name is available at https://www.npmjs.com/package/download-vercel-source
+1. **npm login**: Run `npm login` and authenticate as `numanaral`
+2. **Verify**: Run `npm whoami` to confirm you're logged in
 
-## Project Structure
+## Publishing an Update
 
-```
-vercel-deploy-source-downloader/
-├── src/                           # Source TypeScript files
-│   └── vercel-deploy-source-downloader.ts
-├── dist/                          # Compiled JavaScript (gitignored, created on build)
-│   ├── vercel-deploy-source-downloader.js
-│   ├── vercel-deploy-source-downloader.d.ts
-│   └── *.map files
-├── package.json                   # Package configuration
-├── tsconfig.json                  # TypeScript configuration
-├── .npmignore                     # Files to exclude from npm package
-├── .gitignore                     # Files to exclude from git
-├── README.md                      # User documentation
-├── LICENSE                        # MIT license
-└── .env.example                   # Example environment file
-```
+### 1. Make your changes in `src/`
 
-## Publishing Steps
+Update the code, then update [CHANGELOG.md](CHANGELOG.md) with the new version's changes.
 
-### 1. Check Your Account
+### 2. Bump the version
+
 ```bash
-npm whoami
-# Should show: numanaral
+npm version patch   # 1.1.0 → 1.1.1 (bug fixes)
+npm version minor   # 1.1.0 → 1.2.0 (new features)
+npm version major   # 1.1.0 → 2.0.0 (breaking changes)
 ```
 
-### 2. Update Version (if needed)
-```bash
-# For first publish, version 1.0.0 is already set
-# For future updates:
-npm version patch   # 1.0.0 → 1.0.1 (bug fixes)
-npm version minor   # 1.0.0 → 1.1.0 (new features)
-npm version major   # 1.0.0 → 2.0.0 (breaking changes)
-```
+This updates `package.json` and creates a git tag automatically.
 
-### 3. Build the Package
-```bash
-npm run build
-```
+### 3. Test locally
 
-This will compile TypeScript to JavaScript in the `dist/` directory.
-
-### 4. Test the Package Locally
 ```bash
-# See what will be published
+# Preview what will be published
 npm pack --dry-run
 
-# Or create a tarball to inspect
+# Or test the full install from a tarball
 npm pack
-tar -tzf download-vercel-source-1.0.0.tgz
+npm install /path/to/vercel-deploy-source-downloader-<version>.tgz
 ```
 
-### 5. Test Installation Locally
-```bash
-# In another directory, test installing from the tarball
-npm install /path/to/download-vercel-source-1.0.0.tgz
+### 4. Publish
 
-# Or use npm link
-npm link
-# Then in another project:
-npm link download-vercel-source
-```
-
-### 6. Publish to npm
 ```bash
-# First time publish
 npm publish
-
-# If the package name is taken, you can publish under a scope:
-npm publish --access public
-
-# For testing, you can publish to npm's test registry:
-npm publish --dry-run
 ```
 
-### 7. Verify Publication
-```bash
-# Check on npm website
-open https://www.npmjs.com/package/download-vercel-source
+The `prepublishOnly` script runs `npm run build` automatically, so the latest code is always compiled before publishing.
 
-# Or test installation
-npx download-vercel-source@latest --help
+### 5. Push to GitHub
+
+```bash
+git push && git push --tags
+```
+
+### 6. Verify
+
+```bash
+# Check on npm
+open https://www.npmjs.com/package/vercel-deploy-source-downloader
+
+# Test the published version
+npx vercel-deploy-source-downloader@latest
 ```
 
 ## Using the Published Package
 
-Once published, users can run it with:
-
 ```bash
-# Run directly with npx (no installation needed)
-npx download-vercel-source <token>
-npx download-vercel-source <token> --deployment dpl_ABC --verbose
+# Run directly with npx (no install needed)
+npx vercel-deploy-source-downloader
 
 # Or install globally
-npm install -g download-vercel-source
-download-vercel-source <token>
-
-# Or install locally in a project
-npm install download-vercel-source
-npx download-vercel-source <token>
+npm install -g vercel-deploy-source-downloader
+vercel-deploy-source-downloader
 ```
-
-## Automated Publishing
-
-The `package.json` includes a `prepublishOnly` script that automatically runs `npm run build` before publishing, ensuring the latest code is compiled.
-
-## Future Updates
-
-To publish updates:
-
-1. Make your changes in `src/`
-2. Update version: `npm version patch` (or minor/major)
-3. Build: `npm run build` (or just run npm publish, it will build automatically)
-4. Publish: `npm publish`
-5. Git commit and push: `git push && git push --tags`
 
 ## Package Configuration
 
-Key `package.json` fields for npm:
+Key `package.json` fields:
 
-- **name**: Package name on npm
-- **version**: Semantic version (x.y.z)
-- **description**: Shows in search results
-- **main**: Entry point for `require()`
-- **bin**: CLI command mapping
-- **files**: What to include in package
-- **keywords**: For npm search
-- **repository**: GitHub link
-- **author**: Your name/email
-- **license**: MIT
+| Field | Purpose |
+|---|---|
+| `name` | Package name on npm |
+| `version` | Semantic version (x.y.z) |
+| `description` | Shows in npm search results |
+| `main` | Entry point for `require()` |
+| `bin` | CLI command mapping |
+| `files` | What to include in the npm package |
+| `keywords` | For npm search discovery |
+| `repository` | GitHub link |
+| `engines` | Minimum Node.js version |
 
 ## Troubleshooting
 
 ### "You do not have permission to publish"
 - Make sure you're logged in: `npm whoami`
-- Check if name is taken: https://www.npmjs.com/package/download-vercel-source
-- If taken, use a scoped package: `@numanaral/download-vercel-source`
+- Verify you own the package: `npm owner ls vercel-deploy-source-downloader`
 
 ### "EPERM" or cache errors
 - Fix npm cache: `sudo chown -R $(id -u):$(id -g) ~/.npm`
-
-### "Package name too similar to existing package"
-- Choose a different name or use a scope
 
 ### Testing before publish
 - Use `npm pack --dry-run` to see what would be included
 - Use `npm publish --dry-run` to test without actually publishing
 
-## GitHub Repository
-
-Don't forget to:
-1. Create a GitHub repository at: https://github.com/numanaral/download-vercel-source
-2. Push your code:
-```bash
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin git@github.com:numanaral/download-vercel-source.git
-git push -u origin main
-```
-
-3. Add a GitHub Action for automated publishing (optional)
-
 ## Version History
 
-- **1.0.0** - Initial release
-  - Download source files from Vercel deployments
-  - Support for latest or specific deployment IDs
-  - Project and team filtering
-  - Verbose mode
-  - Tree view of downloaded files
-
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
