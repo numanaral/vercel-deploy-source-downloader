@@ -12,6 +12,9 @@ dist/
 # Node modules
 node_modules/
 
+# Lock files (we use yarn.lock)
+package-lock.json
+
 # OS files
 .DS_Store
 Thumbs.db
