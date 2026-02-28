@@ -333,7 +333,7 @@ const downloadSource = async () => {
       logError("  npx vercel-deploy-source-downloader [token] [options]");
       logError("\nOptions:");
       logError("  --deployment <id|latest>    Deployment ID or 'latest' (default: latest)");
-      logError("  --project <n>            Project name (default: auto-detect)");
+      logError("  --project <name>            Project name (default: auto-detect)");
       logError("  --team <id>                 Team ID (default: auto-detect)");
       logError("  --output <path>             Output directory path (default: ./out)");
       logError("  --verbose                   Show detailed progress");
