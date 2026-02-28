@@ -8,7 +8,7 @@
  *
  * Options:
  *   --deployment <id|latest>    Deployment ID or "latest" (default: latest)
- *   --project <name>            Project name (default: auto-detect)
+ *   --project <n>            Project name (default: auto-detect)
  *   --team <id>                 Team ID (default: auto-detect)
  *   --output <path>             Output directory path (default: ./out)
  *   --verbose                   Show detailed progress for each file
@@ -333,7 +333,7 @@ const downloadSource = async () => {
       logError("  npx vercel-deploy-source-downloader [token] [options]");
       logError("\nOptions:");
       logError("  --deployment <id|latest>    Deployment ID or 'latest' (default: latest)");
-      logError("  --project <name>            Project name (default: auto-detect)");
+      logError("  --project <n>            Project name (default: auto-detect)");
       logError("  --team <id>                 Team ID (default: auto-detect)");
       logError("  --output <path>             Output directory path (default: ./out)");
       logError("  --verbose                   Show detailed progress");
@@ -412,14 +412,32 @@ const downloadSource = async () => {
     log(`✅ Got file tree`, true);
     log("", true);
 
-    // Extract file hash from link URL
+    /**
+     * Extracts a content-addressed file hash from a link of the form:
+     *   /files/<hex_hash>
+     * Returns null if the link uses the path-based format instead.
+     */
     const getFileHash = (link: string): string | null => {
-      const match = link.match(/\/files\/([a-f0-9]+)$/);
+      const match = link.match(/\/files\/([a-f0-9]+)(?:\?|$)/);
       return match ? match[1] : null;
     };
 
-    // Helper function to download a file by hash
-    const downloadFile = async (fileHash: string): Promise<Buffer> => {
+    /**
+     * Extracts the file path from a path-based link of the form:
+     *   /files/get?path=<encoded_path>
+     * Returns null if the link uses the hash-based format instead.
+     */
+    const getFilePath = (link: string): string | null => {
+      const match = link.match(/[?&]path=([^&]+)/);
+      return match ? decodeURIComponent(match[1]) : null;
+    };
+
+    /**
+     * Downloads a file using its content-addressed hash.
+     * Endpoint: GET /api/v7/deployments/:id/files/:hash
+     * The response is a JSON object with a base64-encoded `data` field.
+     */
+    const downloadFileByHash = async (fileHash: string): Promise<Buffer> => {
       return new Promise((resolve, reject) => {
         let fileUrl = `https://vercel.com/api/v7/deployments/${deploymentId}/files/${fileHash}`;
         if (teamId) {
@@ -441,6 +459,45 @@ const downloadSource = async () => {
                 try {
                   const json: FileResponse = JSON.parse(data);
                   // Decode base64 data
+                  const buffer = Buffer.from(json.data, "base64");
+                  resolve(buffer);
+                } catch (e) {
+                  reject(e);
+                }
+              });
+            }
+          )
+          .on("error", reject);
+      });
+    };
+
+    /**
+     * Downloads a file using its deployment-relative path.
+     * Endpoint: GET /api/v7/deployments/:id/files/get?path=<encoded_path>
+     * The response is the raw file content (not base64-wrapped JSON).
+     */
+    const downloadFileByPath = async (filePath: string): Promise<Buffer> => {
+      return new Promise((resolve, reject) => {
+        let fileUrl = `https://vercel.com/api/v7/deployments/${deploymentId}/files/get?path=${encodeURIComponent(filePath)}`;
+        if (teamId) {
+          fileUrl += `&teamId=${teamId}`;
+        }
+
+        https
+          .get(
+            fileUrl,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+            (res) => {
+              // This endpoint returns the same base64-wrapped JSON as the hash endpoint
+              let data = "";
+              res.on("data", (chunk) => (data += chunk));
+              res.on("end", () => {
+                try {
+                  const json: FileResponse = JSON.parse(data);
                   const buffer = Buffer.from(json.data, "base64");
                   resolve(buffer);
                 } catch (e) {
@@ -518,9 +575,15 @@ const downloadSource = async () => {
       } else if (node.type === "file" && node.link) {
         // Download and save file
         try {
+          // The Vercel API returns two different link formats:
+          //   1. Hash-based:  /files/<hex_hash>          — older/compiled assets
+          //   2. Path-based:  /files/get?path=<filepath> — source files (Next.js pages, etc.)
+          // We handle both so that neither format silently fails.
           const fileHash = getFileHash(node.link);
-          if (!fileHash) {
-            logError(`❌ Could not extract hash from link: ${node.link}`);
+          const filePath = fileHash ? null : getFilePath(node.link);
+
+          if (!fileHash && !filePath) {
+            logError(`❌ Could not extract hash or path from link: ${node.link}`);
             return;
           }
 
@@ -534,7 +597,10 @@ const downloadSource = async () => {
             }
           }
 
-          const content = await downloadFile(fileHash);
+          const content = fileHash
+            ? await downloadFileByHash(fileHash)
+            : await downloadFileByPath(filePath!);
+
           mkdirSync(dirname(fullPath), { recursive: true });
           writeFileSync(fullPath, content);
           downloadedFiles.push(fullPath);
