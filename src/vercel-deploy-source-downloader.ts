@@ -8,7 +8,7 @@
  *
  * Options:
  *   --deployment <id|latest>    Deployment ID or "latest" (default: latest)
- *   --project <n>            Project name (default: auto-detect)
+ *   --project <name>            Project name (default: auto-detect)
  *   --team <id>                 Team ID (default: auto-detect)
  *   --output <path>             Output directory path (default: ./out)
  *   --verbose                   Show detailed progress for each file
