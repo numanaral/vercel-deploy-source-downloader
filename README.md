@@ -100,4 +100,4 @@ MIT
 
 ## Author
 
-Numan <ahmetnuman95@hotmail.com>
+[Numan Aral](https://numanaral.dev?utm_source=vercel-deploy-source-downloader-github&utm_medium=readme&utm_campaign=vercel-deploy-source-downloader)
