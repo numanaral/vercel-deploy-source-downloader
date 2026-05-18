@@ -38,6 +38,7 @@ npx vercel-deploy-source-downloader [token] [options]
 | `--project <name>` | Project name | auto-detect |
 | `--team <slug-or-id>` | Team slug (e.g. `numanaral`) or ID (e.g. `team_xxx`) | auto-detect |
 | `--output <path>` | Output directory | `./out` |
+| `--exclude <paths>` | Exclude path(s) from download, comma-separated | off |
 | `--verbose` | Show per-file progress, file tree, and skipped files in console | off |
 | `--retry-failed` | Re-download only files that failed in a previous run | off |
 
@@ -48,6 +49,7 @@ Create a `.env` file (see `.env.example`):
 ```env
 VERCEL_TOKEN=your_token_here
 VERCEL_DEPLOYMENT=aBcxxxxxxxxxxxxxxxxxxxxyZa
+VERCEL_EXCLUDE=.npm-cache,dist
 ```
 
 | Variable | Description | Default |
@@ -56,6 +58,7 @@ VERCEL_DEPLOYMENT=aBcxxxxxxxxxxxxxxxxxxxxyZa
 | `VERCEL_DEPLOYMENT` | Deployment ID or `latest` | `latest` |
 | `VERCEL_PROJECT` | Project name (optional, auto-detected) | — |
 | `VERCEL_TEAM` | Team slug or ID (optional, auto-detected) | — |
+| `VERCEL_EXCLUDE` | Exclude path(s) from download, comma-separated | off |
 | `VERCEL_OUTPUT` | Output directory path | `./out` |
 
 ## Priority Order
@@ -103,4 +106,7 @@ VERCEL_PROJECT=my-project npx vercel-deploy-source-downloader <token>
 
 # Retry only previously failed files
 npx vercel-deploy-source-downloader --deployment <id> --retry-failed
+
+# Exclude `.npm-cache` from download
+npx vercel-deploy-source-downloader <token> --deployment <id> --exclude .npm-cache
 ```
