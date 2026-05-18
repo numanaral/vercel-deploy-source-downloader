@@ -29,6 +29,14 @@ npx tsx src/vercel-deploy-source-downloader.ts --deployment <id> --retry-failed
 
 This reads the previous `download-log.txt` and only re-downloads the files that failed.
 
+## Excluding unwanted paths
+
+If you want to skip certain paths from the deployment source tree, use `--exclude`:
+
+```bash
+npx vercel-deploy-source-downloader <token> --deployment <id> --exclude .npm-cache
+```
+
 ## Rate limiting
 
 The tool downloads files sequentially. If you hit rate limits, wait a few minutes and retry (or use `--retry-failed`).

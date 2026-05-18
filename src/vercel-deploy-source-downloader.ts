@@ -13,6 +13,7 @@
  *   --project <name>     Project name (default: auto-detect from deployment)
  *   --team <slug|id>     Team slug or ID (default: auto-detect from deployment)
  *   --output <path>      Output directory path (default: ./out)
+ *   --exclude <paths>    Exclude path(s) from download, comma-separated
  *   --verbose            Show detailed progress for each file
  *   --retry-failed       Re-download only files that failed in a previous run
  *
@@ -135,6 +136,11 @@ const parseArgs = () => {
 
   const resolvedDeployment = options.deployment || process.env.VERCEL_DEPLOYMENT || "";
   const deploymentExplicitlySet = !!resolvedDeployment;
+  const rawExclude = options.exclude || process.env.VERCEL_EXCLUDE || "";
+  const excludePaths = rawExclude
+    .split(",")
+    .map((path) => path.trim())
+    .filter(Boolean);
 
   // Priority: CLI args > environment variables > defaults
   return {
@@ -146,6 +152,7 @@ const parseArgs = () => {
     output: options.output || process.env.VERCEL_OUTPUT || "./out",
     verbose: options.verbose === "true",
     retryFailed: options["retry-failed"] === "true",
+    excludePaths,
   };
 };
 
@@ -605,6 +612,14 @@ const downloadSource = async () => {
     log("", true);
 
     const token = args.token;
+    const isExcludedPath = (relativeFilePath: string) =>
+      args.excludePaths.some((excludePath) =>
+        excludePath
+          ?
+              relativeFilePath === excludePath ||
+              relativeFilePath.startsWith(`${excludePath}/`)
+          : false
+      );
 
     // Get file tree from API (using base=src for source code)
     log("📋 Fetching file tree from API...", true);
@@ -789,6 +804,11 @@ const downloadSource = async () => {
       const relativeFilePath = relativePath ? `${relativePath}/${node.name}` : node.name;
 
       if (node.type === "directory") {
+        if (isExcludedPath(relativeFilePath)) {
+          log(`⏭️  Excluding directory: ${relativeFilePath}`);
+          return;
+        }
+
         // In retry mode, skip directories that can't contain any failed files
         if (retryOnlyPaths) {
           const dirPrefix = relativeFilePath + "/";
@@ -824,6 +844,11 @@ const downloadSource = async () => {
           }
         }
       } else if (node.type === "file" && node.link) {
+        if (isExcludedPath(relativeFilePath)) {
+          log(`⏭️  Excluding file: ${relativeFilePath}`);
+          return;
+        }
+
         // In retry mode, skip files not in the failed set
         if (retryOnlyPaths && !retryOnlyPaths.has(relativeFilePath)) {
           return;

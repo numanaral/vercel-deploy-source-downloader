@@ -89,6 +89,16 @@ Use `--verbose` to see detailed output in the console:
 
 Without `--verbose`, the console shows a spinner with download/skip counts and a summary. The log file always contains full details.
 
+## Excluding Paths
+
+Use `--exclude` to skip one or more paths when downloading source files. Paths are matched exactly or by prefix, and can be provided as a comma-separated list.
+
+```bash
+npx vercel-deploy-source-downloader <token> --deployment <id> --exclude .npm-cache,dist
+```
+
+This is useful when you want to avoid downloading caches or generated folders from the deployment source tree.
+
 ## Example Output
 
 ```

@@ -18,6 +18,12 @@ Or pass everything directly:
 npx vercel-deploy-source-downloader <token> --deployment aBcxxxxxxxxxxxxxxxxxxxxyZa
 ```
 
+To exclude a path such as `.npm-cache` from download:
+
+```bash
+npx vercel-deploy-source-downloader <token> --deployment aBcxxxxxxxxxxxxxxxxxxxxyZa --exclude .npm-cache
+```
+
 For detailed configuration and advanced usage, see [Documentation](#documentation).
 
 ## Getting Your Vercel Token

@@ -36,3 +36,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Other
+yarn.lock
